@@ -4,6 +4,7 @@ import json
 import time
 
 from flask import Flask, request
+from flask_cors import cross_origin
 import requests
 
 
@@ -141,6 +142,7 @@ blockchain = Blockchain()
 
 
 @app.route('/chain', methods=['GET'])
+@cross_origin()
 def get_chain():
 
     chain_data = []
@@ -156,6 +158,7 @@ def get_chain():
     
     
 @app.route('/mine_block', methods=['POST'])
+@cross_origin()
 def mine_block():
     minerinfo  = request.get_json()
     try:
@@ -175,6 +178,7 @@ def mine_block():
 
 
 @app.route('/make_transaction', methods=['POST'])
+@cross_origin()
 def make_transaction():
     senderinfo  = request.get_json()
     try:
@@ -187,6 +191,7 @@ def make_transaction():
     return {"message":"transaction has been made."}
 
 @app.route('/get_balance', methods=['POST'])
+@cross_origin()
 def get_balance():
     userinfo  = request.get_json()
     try:
@@ -200,6 +205,6 @@ def get_balance():
 
 
 
-
-app.run(debug=True, port=5000)
+if __name__ == "__main__":
+    app.run(debug=True,host="0.0.0.0",port=5000)
 
