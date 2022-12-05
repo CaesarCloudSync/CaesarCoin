@@ -141,6 +141,12 @@ blockchain = Blockchain()
 
 
 
+@app.route('/', methods=['GET'])
+@cross_origin()
+def caesarcoinhome():
+    return "CaesarCoin, This is the Caesar Coin Blockchain."
+    
+
 @app.route('/chain', methods=['GET'])
 @cross_origin()
 def get_chain():
