@@ -426,6 +426,30 @@ def download_torrent_file():
 	# {"current_user(jwt)":"contributor","company":"","quota","","torrentfile":"<torrentfile>"}
 	# Store torrent file in database
 	# Coin will be generated after the torrent file has been torrented.
+@app.route('/get_torrent', methods=['GET'])
+@cross_origin()
+def get_torrent():
+	direct = "CaesarTorrentsDownload"
+
+	if request.method == 'GET':
+		#torrentdetails = request.get_json()
+		if direct in os.listdir():
+			shutil.rmtree(direct)
+		if direct not in os.listdir():
+			os.mkdir(direct)
+		filedata = importcsv.gridfs.fs.files.find_one({"filename":"archive.zip.torrent"})
+		my_id = filedata["_id"]
+		output_Data = caesarfs.get(my_id).read()
+		output = open(f"{direct}/archive.zip.torrent","wb")
+		output.write(output_Data)
+		output.close()
+		print("download completed")
+
+		return send_from_directory(direct,"archive.zip.torrent") #send_file(f"{direct}/{f.filename}",as_attachment=True)
+		
+	# {"current_user(jwt)":"contributor","company":"","quota","","torrentfile":"<torrentfile>"}
+	# Store torrent file in database
+	# Coin will be generated after the torrent file has been torrented.
 
 # TODO This is done by the quota poster
 @app.route('/start_torrent', methods=['POST'])
