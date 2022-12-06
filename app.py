@@ -19,7 +19,7 @@ from flask import Flask, jsonify,request,send_file,send_from_directory
 from flask_cors import cross_origin
 from werkzeug.utils import secure_filename
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
-from blockchains.blockchain import Blockchain
+from blockchain import Blockchain
 from csv_to_db import ImportCSV
 from models import CompanyUsers,ContributorUsers 
 from bson.objectid import ObjectId # 
@@ -46,6 +46,10 @@ blockchain = Blockchain()
 # TODO Sent by Contributor
 # TODO Two Factor Authentication
 # TODO Allow each device to make local honey pot to send to
+@app.route('/', methods=['GET'])
+@cross_origin()
+def caesarcoinhome():
+    return "CaesarCoin, This is the Caesar Coin Blockchain."
 @app.route('/quotapostersignup', methods=['POST'])
 @cross_origin()
 def quotapostersignup():
@@ -461,73 +465,81 @@ def send_data_quota():
 
 
 
-@app.route('/', methods=['GET'])
-@cross_origin()
-def caesarcoinhome():
-    return "CaesarCoin, This is the Caesar Coin Blockchain."
+
     
 
 @app.route('/chain', methods=['GET'])
 @cross_origin()
 def get_chain():
-
-    chain_data = []
-    if "blockchain.json" in os.listdir():
-        with open("blockchain.json","r") as f:
-            blockchain_file = json.load(f)
-        return blockchain_file
-    elif "blockchain.json" not in os.listdir():
-        for ind,block in enumerate(blockchain.chain):
-            chain_data.append(block.__dict__)
-        return {"length": len(chain_data),"chain": chain_data}
+	try:
+		chain_data = []
+		if "blockchain.json" in os.listdir():
+			with open("blockchain.json","r") as f:
+				blockchain_file = json.load(f)
+			return blockchain_file
+		elif "blockchain.json" not in os.listdir():
+			for ind,block in enumerate(blockchain.chain):
+				chain_data.append(block.__dict__)
+			return {"length": len(chain_data),"chain": chain_data}
+	except Exception as ex:
+		return {"error":f"{type(ex)},{ex}"}
     
     
     
 @app.route('/mine_block', methods=['POST'])
 @cross_origin()
 def mine_block():
-    minerinfo  = request.get_json()
-    try:
-        miner = minerinfo["miner"]
-        reward = 5 #minerinfo["amount"]
-    except KeyError as kex:
-        return {"error":r"miner:<miner>,amount:<amount>"}
-    blockchain.add_new_transaction("System",miner,reward)
-    blockchain.mine()
-    chain_data = []
-    for block in blockchain.chain:
-        chain_data.append(block.__dict__)
-    blockchain_response = {"length": len(chain_data),"chain": chain_data}
-    with open("blockchain.json","w+") as f:
-        json.dump(blockchain_response,f)
-    return json.dumps(blockchain_response)
+	try:
+		minerinfo  = request.get_json()
+		try:
+			miner = minerinfo["miner"]
+			reward = 5 #minerinfo["amount"]
+		except KeyError as kex:
+			return {"error":r"miner:<miner>,amount:<amount>"}
+		blockchain.add_new_transaction("System",miner,reward)
+		blockchain.mine()
+		chain_data = []
+		for block in blockchain.chain:
+			chain_data.append(block.__dict__)
+		blockchain_response = {"length": len(chain_data),"chain": chain_data}
+		with open("blockchain.json","w+") as f:
+			json.dump(blockchain_response,f)
+		return json.dumps(blockchain_response)
+	except Exception as ex:
+		return {"error":f"{type(ex)},{ex}"}
 
 
 @app.route('/make_transaction', methods=['POST'])
 @cross_origin()
 def make_transaction():
-    senderinfo  = request.get_json()
-    try:
-        sender = senderinfo["sender"]
-        recipient = senderinfo["recipient"]
-        amount = senderinfo["amount"]
-    except KeyError as kex:
-        return {"error":r"sender:<sender>,recipient:<recipient>,amount:<amount>"}
-    blockchain.add_new_transaction(sender,recipient,amount)
-    return {"message":"transaction has been made."}
+	try:
+		senderinfo  = request.get_json()
+		try:
+			sender = senderinfo["sender"]
+			recipient = senderinfo["recipient"]
+			amount = senderinfo["amount"]
+		except KeyError as kex:
+			return {"error":r"sender:<sender>,recipient:<recipient>,amount:<amount>"}
+		blockchain.add_new_transaction(sender,recipient,amount)
+		return {"message":"transaction has been made."}
+	except Exception as ex:
+		return {"error":f"{type(ex)},{ex}"}
 
 @app.route('/get_balance', methods=['POST'])
 @cross_origin()
 def get_balance():
-    userinfo  = request.get_json()
-    try:
-        userbalancename = userinfo["user"]
+	try:
+		userinfo  = request.get_json()
+		try:
+			userbalancename = userinfo["user"]
 
-    except KeyError as kex:
-        return {"error":r"sender:<sender>,recipient:<recipient>,amount:<amount>"}
-    balance = blockchain.getBalance(userbalancename)
-    print(balance)
-    return {"balance":{userbalancename:balance}}
+		except KeyError as kex:
+			return {"error":r"sender:<sender>,recipient:<recipient>,amount:<amount>"}
+		balance = blockchain.getBalance(userbalancename)
+		print(balance)
+		return {"balance":{userbalancename:balance}}
+	except Exception as ex:
+		return {"error":f"{type(ex)},{ex}"}
 
 if __name__ == "__main__":
 	app.run(debug=True,host="0.0.0.0",port=5000)
