@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="todoApp">
   <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
     <title>Web Torrent Tutorial</title>
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/video.js/7.8.1/video-js.min.css" />
@@ -9,20 +10,8 @@
   </head>
   <body>
     <video id="video-container" class="video-js" data-setup="{}" controls="true"></video>
-    <script>
-      const client = new WebTorrent();
-      const torrentId = 'https://webtorrent.io/torrents/sintel.torrent'
-      client.add(torrentId, function (torrent) {
-        // Torrents can contain many files. Let's use the .mp4 file
-        const file = torrent.files.find(function (file) {
-          return file.name.endsWith(".mp4");
-        });
+    <script src="caesarvideo.js">
 
-        // Render to a <video> element by providing an ID. Alternatively, one can also provide a DOM element.
-        file.renderTo("video#video-container_html5_api", {}, () => {
-          console.log("Ready to play!");
-        });
-      });
     </script>
   </body>
 </html>
