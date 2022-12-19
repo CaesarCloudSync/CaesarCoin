@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <body>
+    <h1>Download files using the WebTorrent protocol (BitTorrent over WebRTC).</h1>
+
+
+    <form>
+      <label for="torrentId">Download from a magnet link: </label>
+      <input name="torrentId", placeholder="magnet:" value="main.jpeg">
+      <button type="submit">Download</button>
+    </form>
+
+    <h2>Log</h2>
+    <div class="log"></div>
+
+    <!-- Include the latest version of WebTorrent -->
+    <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js" integrity="sha512-zJYu9ICC+mWF3+dJ4QC34N9RA0OVS1XtPbnf6oXlvGrLGNB8egsEzu/5wgG90I61hOOKvcywoLzwNmPqGAdATA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+
+    <script src="{{url_for('static',filename='torrent/caesartorrent.js')}}">
+    </script>
+  </body>
+</html>

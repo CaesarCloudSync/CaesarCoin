@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html ng-app="caesarseed" >
+  <head>
+    <script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js" integrity="sha512-zJYu9ICC+mWF3+dJ4QC34N9RA0OVS1XtPbnf6oXlvGrLGNB8egsEzu/5wgG90I61hOOKvcywoLzwNmPqGAdATA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://unpkg.com/react@16/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <!-- Include the latest version of WebTorrent -->
+    <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/DragDrop/0.3.0/drag-drop.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/DragDrop/0.3.0/drag-drop.js"></script>
+    <!-- Moment is used to show a human-readable remaining time -->
+    <script src="http://momentjs.com/downloads/moment.min.js"></script>
+
+
+    <link rel="stylesheet" href="{{url_for('static',filename='seed/caesardragndrop.css')}}">
+    <link rel="stylesheet" href="{{url_for('static',filename='seed/caesarseed.css')}}">
+    <link rel="stylesheet" href="{{url_for('static',filename='seed/headerseed.css')}}">
+    <meta charset="UTF-8">
+    <title>WebTorrent video player</title>
+  </head>
+  <body >
+    <div class="headersection"></div>
+    <section class="headline">
+        <div id="drop-area">
+          <form class="my-form">
+            <p>Upload multiple files with the file dialog or by dragging and dropping images onto the dashed region</p>
+            <input type="file" id="fileElem" multiple onchange="handleFiles(this.files)">
+            <label class="button" for="fileElem">Select some files</label>
+          </form>
+          <progress id="progress-bar" max=100 value=0></progress>
+          <div id="gallery"></div>
+      </div>
+    </section>
+    <div class="aboutseed"></div>
+
+  
+
+
+    
+      
+
+    <script src="{{url_for('static',filename='seed/caesarseed.js')}}"></script>
+    <script src="{{url_for('static',filename='seed/headerseed.js')}}" type='text/babel'></script>
+    <script src="{{url_for('static',filename='seed/aboutseed.js')}}" type='text/babel'></script>
+  </body>
+</html>
