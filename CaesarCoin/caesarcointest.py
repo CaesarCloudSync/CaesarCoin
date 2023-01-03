@@ -1,5 +1,6 @@
 import unittest
 import requests
+import hashlib
 import os
 class QuotaSetupContributionRequestTest(unittest.TestCase):
     def test_quota_contribution_request(self):
@@ -115,7 +116,7 @@ class StartBlockChain(unittest.TestCase):
         # This will be run every 30 minutes of contributor seeding, or when a contributor uploads a torrent providing a higher transaction reward. The Nonce can maybe compare to the size of the dataset or just be arbitrary.
         storeblockchainresp = requests.post("http://localhost:5000/store_block",json={"blockchain_name":"Caesar Block Chain","blockchain_password":blockchain_password,"block":{"index": 2,"transactions": [{
                 "sender": "System",
-                    "recipient": "Amari",
+                    "recipient": contributorname,
                     "amount": 5
                 }
             ],
@@ -126,7 +127,22 @@ class StartBlockChain(unittest.TestCase):
         }},headers={'Authorization': 'Bearer ' + contributorsignup["access_token"]}).json()
         print(storeblockchainresp)
         self.assertNotEqual("error", list(storeblockchainresp.keys())[0])
-
+class CaesarCoinWalletTest(unittest.TestCase):
+    def get_balance_test(self):
+        blockchain_name = "Caesar Block Chain"
+        contributorname = "palondomus"
+        blockchain_password = "kya63amari"
+        contributorsignupresp = requests.post("http://127.0.0.1:5000/contributorsignup",json={"contributor":contributorname,"email":"amari.lawal05@gmail.com","password":"kya63amari"})
+        contributorsignup = contributorsignupresp.json()
+        try:
+            self.assertEqual(200,  contributorsignupresp.status_code)
+        except AssertionError as aex:
+            contributorsignupresp = requests.post("http://127.0.0.1:5000/contributorsignin",json={"contributor":contributorname,"email":"amari.lawal05@gmail.com","password":"kya63amari"})
+            contributorsignup = contributorsignupresp.json()
+            self.assertEqual(200,  contributorsignupresp.status_code)
+        # Creates the genesis block and create the needed info
+        getlastblockchainresp = requests.post("http://localhost:5000/get_wallet_balance",json={"blockchain_name":"Caesar Block Chain","blockchain_password":blockchain_password},headers={'Authorization': 'Bearer ' + contributorsignup["access_token"]}).json()
+        print(getlastblockchainresp)
         
 # TODO Make sure the mining part on the frontend is working.
 

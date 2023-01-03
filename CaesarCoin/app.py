@@ -47,6 +47,26 @@ blockchain = Blockchain()
 # TODO Sent by Contributor
 # TODO Two Factor Authentication
 # TODO Allow each device to make local honey pot to send to
+def authenticate_blockchain_membership(current_user,blockchain_name_id,blockchain_password):
+	blockchaininfo_exists = importcsv.db.blockchaininfo.find_one({"blockchain_name_id": blockchain_name_id})
+	if blockchaininfo_exists:
+		blockchaininfo_db = importcsv.db.blockchaininfo.find({"blockchain_name_id": blockchain_name_id})[0]
+		if blockchaininfo_db["privilege"] == "private":
+			if blockchain_password == blockchaininfo_db["blockchain_password"]:
+				if current_user in blockchaininfo_db["blockchain_members"]:
+					return {"message":"user is already a member of this blockchain."}
+				elif current_user not in blockchaininfo_db["blockchain_members"]:
+					return {"message":"member not in private blockchain."}
+			elif blockchain_password  != blockchaininfo_db["blockchain_password"]:
+				return {"message":"incorrect password, not authorized to join."}
+		elif blockchaininfo_db["privilege"] == "public":
+			if current_user in blockchaininfo_db["blockchain_members"]:
+				return {"message":"user is already a member of this blockchain."}
+			elif current_user not in blockchaininfo_db["blockchain_members"]:
+				return {"message":"member not in public blockchain."}
+
+	elif not blockchaininfo_exists:
+		return {"message":"blockchain does not exist."}
 @app.route('/', methods=['GET'])
 @cross_origin()
 def caesarcoinhome():
@@ -88,13 +108,13 @@ def storemagneturi():
 						try:
 							if current_user in quota_company_accepted[quotahashvalue]["contributors"]:
 								magneturi_exists = importcsv.db.quotamagneturis.find_one({"companyid": companyid})
-								original_contributor_string = str(current_user)+ companyid + torrentdetails["quotaname"] + torrentdetails["torrentfilename"] + torrentdetails["torrentmagneturi"]
-								original_contributor_hash = str(hashlib.sha256(original_contributor_string.encode()).hexdigest())
+								#original_contributor_string = str(current_user)+ companyid + torrentdetails["quotaname"] + torrentdetails["torrentfilename"] + torrentdetails["torrentmagneturi"]
+								#original_contributor_hash = str(hashlib.sha256(original_contributor_string.encode()).hexdigest())
 								if magneturi_exists:
 
 									try:
 										magneturi_db = importcsv.db.quotamagneturis.find({"companyid": companyid})[0]
-										jsonstore = {"quotaname":torrentdetails["quotaname"],"torrentfilename":torrentdetails["torrentfilename"],"torrentmagneturi":torrentdetails["torrentmagneturi"],"original_contributor_hash":original_contributor_hash}
+										jsonstore = {"quotaname":torrentdetails["quotaname"],"torrentfilename":torrentdetails["torrentfilename"],"torrentmagneturi":torrentdetails["torrentmagneturi"],"original_contributor_name":torrentdetails["contributorname"],"filesize":torrentdetails["filesize"]} #"original_contributor_hash":original_contributor_hash,
 										if jsonstore in magneturi_db["quotas"]:
 											return {"message":"magneturi already exists"},200
 										elif jsonstore not in magneturi_db["quotas"]:
@@ -104,7 +124,7 @@ def storemagneturi():
 									except KeyError as kexe:
 										return {"error":f"magneturi exists but: {type(kexe)},{kexe}"},200
 								elif not magneturi_exists:
-									importcsv.db.quotamagneturis.insert_one({"companyid":companyid,"quotas":[{"quotaname":torrentdetails["quotaname"],"torrentfilename":torrentdetails["torrentfilename"],"torrentmagneturi":torrentdetails["torrentmagneturi"],"original_contributor_hash":original_contributor_hash}]})
+									importcsv.db.quotamagneturis.insert_one({"companyid":companyid,"quotas":[{"quotaname":torrentdetails["quotaname"],"torrentfilename":torrentdetails["torrentfilename"],"torrentmagneturi":torrentdetails["torrentmagneturi"],"original_contributor_name":torrentdetails["contributorname"],"filesize":torrentdetails["filesize"]}]}) #"original_contributor_hash":original_contributor_hash,
 									return {"message":"magneturi stored."},200
 							elif current_user not in quota_company_accepted[quotahashvalue]["contributors"]:
 								return {"error":"contributor is not authorized to send data to this quota."},200
@@ -151,27 +171,44 @@ def getmagneturi():
 										magneturi_db = importcsv.db.quotamagneturis.find({"companyid": companyid})[0]
 										for quota in magneturi_db["quotas"]:
 											if quota["quotaname"] == torrentdetails["quotaname"] and quota["torrentfilename"] == torrentdetails["torrentfilename"]:
-												del quota["original_contributor_hash"]
+												#del quota["original_contributor_hash"]
 												selected_quota.append(quota)
 											else:
 												continue
 										if len(selected_quota) == 0:
-											return {"error":"quota or torrent file doesn't exist"},400
+											return {"error":"quota or torrent file doesn't exist"},200
 										elif len(selected_quota) > 0:
 											return selected_quota[0],200
 									except KeyError as kexe:
-										return {"error":f"magneturi exists but: {type(kexe)},{kexe}"},400
+										return {"error":f"magneturi exists but: {type(kexe)},{kexe}"},200
 								elif not magneturi_exists:
 									return {"message":"magneturi does not exist."},400
 							elif current_user not in quota_company_accepted[quotahashvalue]["contributors"]:
-								return {"error":"contributor is not authorized to fetch data to this quota."},400
+								return {"error":"contributor is not authorized to fetch data to this quota."},200
 						except KeyError as kex:
 							return {"error":f"company or contributor doesn't exist.{type(kex)},{kex}"},400
 						
 					elif len(quotahashvalue) == 0:
 						pass
 			elif not quota_accepted_exists:
-				return {"message":"company acceptance collection does not exist."},400
+				return {"message":"company acceptance collection does not exist."},200
+		except Exception as ex:
+			return {"error":f"{type(ex)},{ex}"}
+
+@app.route("/getallmagneturi",methods=["GET"])
+@cross_origin()
+@jwt_required()
+def getallmagneturi():
+	current_user = get_jwt_identity()
+	if current_user:
+		try:
+			magneturi_exists = importcsv.db.quotamagneturis.find_one({"companyid": current_user})
+			if magneturi_exists:
+				magneturi_db = importcsv.db.quotamagneturis.find({"companyid": current_user})[0]
+				
+				return {"quotamagneturis":magneturi_db["quotas"]}
+			elif not magneturi_exists:
+				return {"message":"no torrent files have been uploaded yet."}
 		except Exception as ex:
 			return {"error":f"{type(ex)},{ex}"}
 # Both Contributor and quota poster
@@ -292,6 +329,7 @@ def store_block():
 			try:
 				index = blockdetails["index"]
 				transactions = blockdetails["transactions"]
+				transactions[-1]["recipient"] = str(hashlib.sha256(transactions[-1]["recipient"].encode()).hexdigest())
 				timestamp = blockdetails["timestamp"]
 				previous_hash = blockdetails["previous_hash"]
 				nonce = blockdetails["nonce"]
@@ -748,7 +786,7 @@ def get_highwaymp4_torrent():
 
 @app.route('/get_highway_torrent', methods=['GET'])
 @cross_origin()
-def gget_highway_torrent():
+def get_highway_torrent():
 	direct = "CaesarTorrentsDownload"
 
 	if request.method == 'GET':
@@ -770,46 +808,6 @@ def gget_highway_torrent():
 	# {"current_user(jwt)":"contributor","company":"","quota","","torrentfile":"<torrentfile>"}
 	# Store torrent file in database
 	# Coin will be generated after the torrent file has been torrented.
-
-# TODO This is done by the quota poster
-@app.route('/start_torrent', methods=['POST'])
-@cross_origin()
-@jwt_required()
-def start_torrent():
-
-	try:
-		#seeder_info = request.get_json() # {"current_user(jwt)":"<contributor>","company":"","quota":"","torrentfile(name)":""}
-		#importcsv.gridfs.fs
-		#importcsv.db.quotatorrentpending.f
-		pass
-		
-		
-	except Exception as ex:
-		return {"error":f"{type(ex)},{ex}"}
-	# Store to pendingtorrents collection
-	# TODO Long term worker - A long term script worker uses the webtorrent to get the torrentfile from the database and starts torrenting.
-	# When it has finished the torrent the larger reward transaction is added to the blockchain then mined for the main contributor and other contributors. 
-	# Then they can see the balance of the wallet
-
-	pass
-
-# TODO This is done by the contributor others
-@app.route('/set_torrent_seeder', methods=['POST'])
-@cross_origin()
-@jwt_required()
-def set_torrent_seeder():
-	#seeder_info = request.get_json() # {"current_user(jwt)":"<contributor>","company":"","quota","" -> "<torrent file linked to quota in database>"}
-
-	pass
-
-@app.route('/send_data_quota', methods=['POST'])
-@cross_origin()
-def send_data_quota():
-	pass
-
-
-
-
     
 
 @app.route('/chain', methods=['GET'])
@@ -884,6 +882,55 @@ def get_balance():
 		return {"balance":{userbalancename:balance}}
 	except Exception as ex:
 		return {"error":f"{type(ex)},{ex}"}
+# CaesarCoin Crypto wallet API's
+@app.route('/get_wallet_balance', methods=['POST'])
+@cross_origin()
+@jwt_required()
+def get_wallet_balance():
+	current_user = get_jwt_identity()
+	if current_user:
+		try:
+			user_block_details = request.get_json()
+			blockchain_name_id = str(hashlib.sha256(user_block_details["blockchain_name"].encode()).hexdigest())
+			try:
+				blockchain_password = str(hashlib.sha256(user_block_details["blockchain_password"].encode()).hexdigest())
+			except KeyError as kex:
+				blockchain_password = None
+			#print(current_user,blockchain_name_id,blockchain_password)
+			blockchain_membership = authenticate_blockchain_membership(current_user,blockchain_name_id,blockchain_password)
+			if blockchain_membership["message"] == "user is already a member of this blockchain.":
+				balance = 0
+				blockchain = list(importcsv.db.blockchains.find({"blockchain_name_id": blockchain_name_id}))[0]
+				# This O notation is O(n^2) needs to be imporoved
+				for block in blockchain["chain"]:
+					if block["previous_hash"] == "" :
+						#dont check the first block
+						continue 
+					#print(block)
+					for transaction in block["transactions"]:
+						if transaction["sender"] == current_user:
+							balance -= transaction["amount"]
+						if transaction["recipient"] == current_user:
+							balance += transaction["amount"]
 
+				return {"balance":balance}
+			elif blockchain_membership["message"] == "incorrect password, not authorized to join.":
+				return {"message":"incorrect password, not authorized to join."}
+			else:
+				return {"message":"either your not a member of the blockchain or the blockchain doesn't exist."}
+
+		except Exception as ex:
+			return {"error":f"{type(ex)},{ex}"}
+
+# TODO Done so far
+# Quota Poster creates quota with provided information
+# Contributor asks permision to send data, if eligible to send data
+# Then Contributor can seed torrent to contributors quota
+# If the file uploaded has never been seen before for this quota coin is rewarded according to the size of the file.
+# When seeding every 100 nonces of work a coin is generated which is 9 hours in real time.
+# Then the quota poster looks through the catalogue of all stored magneturis
+# Chooses which magneturi/file to download.
+# Then starts downloading it
+# TODO - Next make its slighlty more visually and user friendly then it is ready for an investor.
 if __name__ == "__main__":
 	app.run(debug=True,host="0.0.0.0",port=5000)
