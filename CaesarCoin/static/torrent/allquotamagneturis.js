@@ -15,7 +15,7 @@ class Comp1 extends React.Component {
     async getallmagneuris(){
         const companyname = "Google"
         const company_password = "kya63amari"
-        const contributorsignup= await axios.post("http://10.220.98.173:5000/quotapostersignin",{"company":companyname,"email":"amari.lawal05@gmail.com","password":company_password})
+        const contributorsignup= await axios.post("https://caesarcoinbackend.onrender.com/quotapostersignin",{"company":companyname,"email":"amari.lawal05@gmail.com","password":company_password})
         
         //console.log(contributorsignup)
         if (contributorsignup.data.access_token == "Wrong password"){
@@ -27,7 +27,7 @@ class Comp1 extends React.Component {
           const config = {
             headers: { Authorization: `Bearer ${contributorsignup.data.access_token}` }
           };
-          const getlastblockchainresp = await axios.get("http://10.220.98.173:5000/getallmagneturi",config) 
+          const getlastblockchainresp = await axios.get("https://caesarcoinbackend.onrender.com/getallmagneturi",config) 
           //console.log(getlastblockchainresp.data.quotamagneturis)
           this.setState( state => ({
             quotas: state.quotas.concat(getlastblockchainresp.data.quotamagneturis)
