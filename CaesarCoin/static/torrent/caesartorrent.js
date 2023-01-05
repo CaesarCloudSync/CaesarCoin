@@ -89,13 +89,14 @@ document.querySelector('form').addEventListener('submit', async function (e) {
       headers: { Authorization: `Bearer ${signingresp.data.access_token}` }
   };
   const torrentmagneturi = await axios.post('https://caesarcoinbackend.onrender.com/getmagneturi',json={"companyname":companyname,"quotaname":quotaname,"torrentfilename":filename},config)
-  console.log(torrentmagneturi.data)
+  //console.log(torrentmagneturi.data)
   const torrentId = torrentmagneturi.data.torrentmagneturi
   log('Adding ' + torrentId)
   client.add(torrentId, onTorrent)
 })
 
 function onTorrent (torrent) {
+  //console.log(torrent)
 
   log('Got torrent metadata!')
   log(
