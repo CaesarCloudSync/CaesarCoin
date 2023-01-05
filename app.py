@@ -40,7 +40,6 @@ app.config["JWT_ACCESS_TOKEN_EXPIRES"] = datetime.timedelta(days=1)
 # Create the object
 # of the class blockchain
 blockchain = Blockchain()
-
 # Mining a new block
 # TODO Sent by Quota Poster
 # TODO Sent by Contributor
