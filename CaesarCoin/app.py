@@ -2,7 +2,7 @@
 
 # For timestamp
 import datetime
-
+import socket
 # Calculating the hash
 # in order to add digital
 # fingerprints to the blocks
@@ -41,6 +41,7 @@ app.config["JWT_ACCESS_TOKEN_EXPIRES"] = datetime.timedelta(days=1)
 # Create the object
 # of the class blockchain
 blockchain = Blockchain()
+
 # Mining a new block
 # TODO Sent by Quota Poster
 # TODO Sent by Contributor
@@ -465,6 +466,9 @@ def contributorsignin():
 			else:
 				return "Wrong password",400
 		login_details = request.get_json()
+		#hostname = socket.gethostname()    
+		#IPAddr = socket.gethostbyname(hostname)  
+		#print(IPAddr)  
 		contributorid = str(hashlib.sha256(login_details["contributor"].encode()).hexdigest())
 		login_details["contributorid"] = contributorid
 		contributorid_exists = importcsv.db.contributorusers.find_one({"contributorid": contributorid})

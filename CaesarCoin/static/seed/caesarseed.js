@@ -9,7 +9,7 @@ blockchain_password = "kya63amari"
 blockchain_name = "Caesar Block Chain"
 window.onload= async function(){
 
-  contributorsignup= await axios.post("http://127.0.0.1:5000/contributorsignin",json={"contributor":contributorname,"email":"amari.lawal05@gmail.com","password":contributor_password})
+  contributorsignup= await axios.post("http://10.220.98.173:5000/contributorsignin",json={"contributor":contributorname,"email":"amari.lawal05@gmail.com","password":contributor_password})
 
   if (contributorsignup.data.access_token == "Wrong password"){
     let walletbalance= document.getElementById("walletbalance")
@@ -20,7 +20,7 @@ window.onload= async function(){
     const config = {
       headers: { Authorization: `Bearer ${contributorsignup.data.access_token}` }
     };
-    getlastblockchainresp = await axios.post("http://localhost:5000/get_wallet_balance",json={"blockchain_name":"Caesar Block Chain","blockchain_password":blockchain_password},config)  
+    getlastblockchainresp = await axios.post("http://10.220.98.173:5000/get_wallet_balance",json={"blockchain_name":"Caesar Block Chain","blockchain_password":blockchain_password},config)  
     console.log(getlastblockchainresp.data.balance)
     const balance = getlastblockchainresp.data.balance
     let walletbalance= document.getElementById("walletbalance")
@@ -159,7 +159,7 @@ const hashBrowser = val =>
 async function caesartorrent(file, i) {
   let files = Array.isArray(file) ? file : [file]
 
-  const signingresp = await axios.post('http://127.0.0.1:5000/contributorsignin',json={"contributor":contributorname,"email":"amari.lawal05@gmail.com","password":"kya63amari"})
+  const signingresp = await axios.post('http://10.220.98.173:5000/contributorsignin',json={"contributor":contributorname,"email":"amari.lawal05@gmail.com","password":"kya63amari"})
 
   //console.log(signingresp.data.access_token)
 
@@ -239,13 +239,13 @@ client.seed(files, async function(torrent){
       let nonce_rewarded = Math.ceil(initial_seeding_elapsed * 10)
       nonce_counter += nonce_rewarded
 
-      const storeresp = await axios.post('http://127.0.0.1:5000/storemagneturi',json={"companyname":companyname,"quotaname":quotaname,"torrentfilename":files[0]["name"],"contributorname":contributorname,"torrentmagneturi":torrent.magnetURI,"filesize":filesize},config)
+      const storeresp = await axios.post('http://10.220.98.173:5000/storemagneturi',json={"companyname":companyname,"quotaname":quotaname,"torrentfilename":files[0]["name"],"contributorname":contributorname,"torrentmagneturi":torrent.magnetURI,"filesize":filesize},config)
       console.log(storeresp.data)
 
       if (storeresp.data.message !== "magneturi already exists"){
-          const createblockresp= await axios.post("http://127.0.0.1:5000/create_blockchain",json={"blockchain_name":blockchain_name,"blockchain_privilege":"private","blockchain_password":blockchain_password},config)
+          const createblockresp= await axios.post("http://10.220.98.173:5000/create_blockchain",json={"blockchain_name":blockchain_name,"blockchain_privilege":"private","blockchain_password":blockchain_password},config)
           //console.log(createblockresp.data)
-          const lastblockresp= await axios.post("http://127.0.0.1:5000/get_last_block",json={"blockchain_name":blockchain_name,"blockchain_password":blockchain_password},config)
+          const lastblockresp= await axios.post("http://10.220.98.173:5000/get_last_block",json={"blockchain_name":blockchain_name,"blockchain_password":blockchain_password},config)
           const lastblock = lastblockresp.data
           lastblock.transactions.push({"sender":"System","recipient":contributorname,"amount":coin_rewarded})
 
@@ -254,13 +254,13 @@ client.seed(files, async function(torrent){
           new_block.hash = blockhash
           new_block.nonce = nonce_counter
 
-          const newblockresp = await axios.post("http://127.0.0.1:5000/store_block",json={"blockchain_name":blockchain_name,"blockchain_password":blockchain_password,"block":new_block},config)
+          const newblockresp = await axios.post("http://10.220.98.173:5000/store_block",json={"blockchain_name":blockchain_name,"blockchain_password":blockchain_password,"block":new_block},config)
           //console.log(newblockresp.data)
       }
       async function createBlockchain(){
-        const createblockresp= await axios.post("http://127.0.0.1:5000/create_blockchain",json={"blockchain_name":blockchain_name,"blockchain_privilege":"private","blockchain_password":blockchain_password},config)
+        const createblockresp= await axios.post("http://10.220.98.173:5000/create_blockchain",json={"blockchain_name":blockchain_name,"blockchain_privilege":"private","blockchain_password":blockchain_password},config)
         //console.log(createblockresp.data)
-        const lastblockresp= await axios.post("http://127.0.0.1:5000/get_last_block",json={"blockchain_name":blockchain_name,"blockchain_password":blockchain_password},config)
+        const lastblockresp= await axios.post("http://10.220.98.173:5000/get_last_block",json={"blockchain_name":blockchain_name,"blockchain_password":blockchain_password},config)
         const lastblock = lastblockresp.data
         const seeding_coins_rewarded = Math.floor(nonce_counter / nonce_to_coin_rate) 
         lastblock.transactions.push({"sender":"System","recipient":contributorname,"amount":seeding_coins_rewarded})
@@ -270,7 +270,7 @@ client.seed(files, async function(torrent){
         new_block.hash = blockhash
         new_block.nonce = nonce_counter
 
-        const newblockresp = await axios.post("http://127.0.0.1:5000/store_block",json={"blockchain_name":blockchain_name,"blockchain_password":blockchain_password,"block":new_block},config)
+        const newblockresp = await axios.post("http://10.220.98.173:5000/store_block",json={"blockchain_name":blockchain_name,"blockchain_password":blockchain_password,"block":new_block},config)
         console.log(newblockresp.data)
       }
       window.setInterval(function(){

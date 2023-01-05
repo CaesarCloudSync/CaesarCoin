@@ -9,7 +9,7 @@ const crEl = (tagName, attributes = {}, text) => {
 window.onload= async function(){
   companyname = "Google"
   company_password = "kya63amari"
-  contributorsignup= await axios.post("http://127.0.0.1:5000/quotapostersignin",json={"company":companyname,"email":"amari.lawal05@gmail.com","password":company_password})
+  contributorsignup= await axios.post("http://10.220.98.173:5000/quotapostersignin",json={"company":companyname,"email":"amari.lawal05@gmail.com","password":company_password})
   
   if (contributorsignup.data.access_token == "Wrong password"){
     let walletbalance= document.getElementById("walletbalance")
@@ -83,12 +83,12 @@ document.querySelector('form').addEventListener('submit', async function (e) {
   contributorname = "palondomus"
   quotaname = "Googleman Text Classification"
   //filename = "main.jpeg"
-  const signingresp = await axios.post('http://127.0.0.1:5000/contributorsignin',json={"contributor":contributorname,"email":"amari.lawal05@gmail.com","password":"kya63amari"})
+  const signingresp = await axios.post('http://10.220.98.173:5000/contributorsignin',json={"contributor":contributorname,"email":"amari.lawal05@gmail.com","password":"kya63amari"})
   //const torrentId = "https://webtorrent.io/torrents/sintel.torrent"
   const config = {
       headers: { Authorization: `Bearer ${signingresp.data.access_token}` }
   };
-  const torrentmagneturi = await axios.post('http://127.0.0.1:5000/getmagneturi',json={"companyname":companyname,"quotaname":quotaname,"torrentfilename":filename},config)
+  const torrentmagneturi = await axios.post('http://10.220.98.173:5000/getmagneturi',json={"companyname":companyname,"quotaname":quotaname,"torrentfilename":filename},config)
   console.log(torrentmagneturi.data)
   const torrentId = torrentmagneturi.data.torrentmagneturi
   log('Adding ' + torrentId)
